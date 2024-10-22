@@ -13,8 +13,6 @@ jobs:
 
     - name: Build and run tests in Docker
       run: |
-        chmod +x kauma
-        chmod +x test.py
         
         docker build -t kauma-tests .
         

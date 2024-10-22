@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Dict, Any
 import subprocess
 from datetime import datetime
-import os
 
 
 def load_output_json(file_path: Path) -> Dict[str, Any]:

@@ -1,4 +1,3 @@
-from block_poly.b64_block import B64Block
 from block_poly.block import Block
 from block_poly.poly import Poly
 

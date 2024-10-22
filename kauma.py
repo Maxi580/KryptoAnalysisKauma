@@ -1,12 +1,10 @@
 import json
 import sys
 from pathlib import Path
-from typing import Dict, Any, Callable
-import base64
+from typing import Dict, Any
 
 from block_poly.b64_block import B64Block
 from block_poly.block import Block
-from block_poly.poly import Poly
 from block_poly.coefficients import Coefficients
 
 from gfmul import gfmul
