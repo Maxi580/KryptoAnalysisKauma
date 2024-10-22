@@ -49,8 +49,6 @@ def process_testcases(input_json):
 
 
 def main():
-    print("\n\n kauma gets executed \n\n")
-
     if len(sys.argv) != 2:
         print("Usage: ./kauma <test_file.json>", file=sys.stderr)
         sys.exit(1)
@@ -64,12 +62,7 @@ def main():
         with open(test_file) as f:
             input_data = json.load(f)
 
-        print("Results get calculated")
-
-        print(f"Input: {input_data}")
-
         results = process_testcases(input_data)
-        print(f"results: {results}")
 
         print(json.dumps(results))
 
