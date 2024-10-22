@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
 import json
 import sys
 from pathlib import Path
 from typing import Dict, Any
 import subprocess
 from datetime import datetime
+import os
 
 
 def load_json(file_path: Path) -> Dict[str, Any]:
@@ -13,17 +13,20 @@ def load_json(file_path: Path) -> Dict[str, Any]:
         with open(file_path) as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        raise f"Error parsing JSON file {file_path}: {e}"
+        f"Error parsing JSON file {file_path}: {e}"
+        sys.exit(1)
 
 
-def run_kauma(input_file: Path) -> Dict[str, Any]:
-    """Run kauma with input file and return parsed JSON output."""
+def run_kauma(input_file: Path) -> dict:
     try:
-        input_path = str(input_file)
-        print(f"Trying to run kauma with input file: {input_path}")
+        # Print debug information
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Input file path: {input_file}")
+        print(f"Directory contents:")
+        os.system('ls -la')
 
-        cmd = ['./kauma', input_path]
-        print(f"Executing command: {' '.join(cmd)}")
+        cmd = ['./kauma', str(input_file)]
+        print(f"Running command: {' '.join(cmd)}")
 
         result = subprocess.run(
             cmd,
@@ -31,19 +34,23 @@ def run_kauma(input_file: Path) -> Dict[str, Any]:
             text=True,
             check=True
         )
-
         return json.loads(result.stdout)
 
     except subprocess.CalledProcessError as e:
-        raise f"Error running kauma on {input_file}: {e.stderr}"
+        print(f"Command failed:")
+        print(f"Stdout: {e.stdout}")
+        print(f"Stderr: {e.stderr}")
+        # Properly raise an exception instead of trying to raise a string
+        raise RuntimeError(f"Error running kauma on {input_file}: {e.stderr}")
     except json.JSONDecodeError as e:
-        raise f"Error parsing kauma output: {e}"
+        raise RuntimeError(f"Error parsing kauma output: {e}")
 
 
 def main():
     test_dir = Path("testcases")
     if not test_dir.exists():
-        raise "Error: testcases directory not found"
+        print("Error: testcases directory not found")
+        sys.exit(1)
 
     total_tests = 0
     failed_tests = []
@@ -73,7 +80,6 @@ def main():
             print(json.dumps(actual_output, indent=2))
             failed_tests.append(test_name)
 
-    # Print summary
     print("\n" + "=" * 50)
     print(f"Test Summary:")
     print(f"Total tests: {total_tests}")
