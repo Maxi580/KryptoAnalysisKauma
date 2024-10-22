@@ -64,14 +64,15 @@ def main():
         with open(test_file) as f:
             input_data = json.load(f)
 
+        print("Results get calculated")
         results = process_testcases(input_data)
+        print(f"results: {results}")
 
         print(json.dumps(results))
 
-
     except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        raise f"Error: {e}"
+
 
 if __name__ == "__main__":
     main()
