@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import json
 import sys
 from pathlib import Path
@@ -19,7 +20,6 @@ def load_json(file_path: Path) -> Dict[str, Any]:
 
 def run_kauma(input_file: Path) -> dict:
     try:
-        # Print debug information
         print(f"Current working directory: {os.getcwd()}")
         print(f"Input file path: {input_file}")
         print(f"Directory contents:")
@@ -40,7 +40,7 @@ def run_kauma(input_file: Path) -> dict:
         print(f"Command failed:")
         print(f"Stdout: {e.stdout}")
         print(f"Stderr: {e.stderr}")
-        # Properly raise an exception instead of trying to raise a string
+
         raise RuntimeError(f"Error running kauma on {input_file}: {e.stderr}")
     except json.JSONDecodeError as e:
         raise RuntimeError(f"Error parsing kauma output: {e}")
