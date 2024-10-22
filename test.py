@@ -1,90 +1,90 @@
-from block_poly.block import Block
-from block_poly.coefficients import Coefficients
-from block_poly.b64_block import B64Block
-from block_poly.poly import Poly
-
-from gfmul import gfmul
-from sea128 import sea_encrypt, sea_decrypt
-from fde import encrypt_fde, decrypt_fde
-
-
-def test_poly_2_block():
-    coefficients = [12, 127, 9, 0]
-    result = Coefficients(coefficients)
-    assert result.get_b64_block() == "ARIAAAAAAAAAAAAAAAAAgA=="
+#!/usr/bin/env python3
+import json
+import sys
+from pathlib import Path
+from typing import Dict, Any
+import subprocess
+from datetime import datetime
 
 
-def test_block_2_poly():
-    b64_block = "ARIAAAAAAAAAAAAAAAAAgA=="
-    result = B64Block(b64_block)
-    assert result.get_coefficients() == [0, 9, 12, 127]
+def load_output_json(file_path: Path) -> Dict[str, Any]:
+    try:
+        with open(file_path) as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        f"Error parsing JSON file {file_path}: {e}"
+        sys.exit(1)
 
 
-def test_gfmul():
-    a = "ARIAAAAAAAAAAAAAAAAAgA=="
-    b = "AgAAAAAAAAAAAAAAAAAAAA=="
+def run_kauma(input_file: Path) -> dict:
+    try:
+        cmd = ['./kauma', str(input_file)]
 
-    a_poly = B64Block(a).get_block()
-    b_poly = B64Block(b).get_block()
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
 
-    result = gfmul(a_poly, b_poly)
+        return json.loads(result.stdout)
 
-    b64_result = Block(result).get_b64_block()
-
-    assert b64_result == "hSQAAAAAAAAAAAAAAAAAAA=="
-
-
-def test_sea128_encrypt():
-    test_key = "istDASeincoolerKEYrofg=="
-    test_plaintext = "yv66vvrO263eyviIiDNEVQ=="
-
-    byte_test_key = B64Block(test_key).get_block()
-    byte_test_plaintext = B64Block(test_plaintext).get_block()
-
-    byte_result = sea_encrypt(byte_test_key, byte_test_plaintext)
-    b64_result = Block(byte_result).get_b64_block()
-
-    assert b64_result == "D5FDo3iVBoBN9gVi9/MSKQ=="
+    except Exception as e:
+        print(f"Unexpected error:")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error: {str(e)}")
+        raise
 
 
-def test_sea_128_decrypt():
-    test_key = "istDASeincoolerKEYrofg=="
-    test_ciphertext = "D5FDo3iVBoBN9gVi9/MSKQ=="
+def main():
+    test_dir = Path("testcases")
+    if not test_dir.exists():
+        print("Error: testcases directory not found")
+        sys.exit(1)
 
-    byte_test_key = B64Block(test_key).get_block()
-    byte_test_ciphertext = B64Block(test_ciphertext).get_block()
+    total_tests = 0
+    failed_tests = []
 
-    byte_result = sea_decrypt(byte_test_key, byte_test_ciphertext)
-    b64_result = Block(byte_result).get_b64_block()
+    print(f"\nStarting tests at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("-" * 50)
 
-    assert b64_result == "yv66vvrO263eyviIiDNEVQ=="
+    for input_file in test_dir.glob("*_input.json"):
+        output_file = input_file.parent / input_file.name.replace("_input.json", "_output.json")
+        if not output_file.exists():
+            continue
+
+        total_tests += 1
+        test_name = input_file.stem.replace("_input", "")
+        print(f"\nTesting {test_name}...")
+
+        actual_output = run_kauma(input_file)
+        expected_output = load_output_json(output_file)
+
+        if actual_output == expected_output:
+            print(f"✅ {test_name} passed")
+        else:
+            print(f"❌ {test_name} failed")
+            print("\nExpected output:")
+            print(json.dumps(expected_output, indent=2))
+            print("\nActual output:")
+            print(json.dumps(actual_output, indent=2))
+            failed_tests.append(test_name)
+
+    print("\n" + "=" * 50)
+    print(f"Test Summary:")
+    print(f"Total tests: {total_tests}")
+    print(f"Passed: {total_tests - len(failed_tests)}")
+    print(f"Failed: {len(failed_tests)}")
+
+    if failed_tests:
+        print("\nFailed tests:")
+        for test in failed_tests:
+            print(f"- {test}")
+        sys.exit(1)
+    else:
+        print("\nAll tests passed! 🎉")
+        sys.exit(0)
 
 
-def test_fde_encrypt():
-    key = "B1ygNO/CyRYIUYhTSgoUysX5Y/wWLi4UiWaVeloUWs0="
-    tweak = "6VXORr+YYHrd2nVe0OlA+Q=="
-    input = "/aOg4jMocLkBLkDLgkHYtFKc2L9jjyd2WXSSyxXQikpMY9ZRnsJE76e9dW9olZIW"
-
-    byte_key = B64Block(key).get_block()
-    byte_tweak = B64Block(tweak).get_block()
-    byte_input = B64Block(input).get_block()
-
-    solution = encrypt_fde(byte_key, byte_tweak, byte_input)
-    b64_solution = Block(solution).get_b64_block()
-
-    assert b64_solution == "mHAVhRCKPAPx0BcufG5BZ4+/CbneMV/gRvqK5rtLe0OJgpDU5iT7z2P0R7gEeRDO"
-
-
-def test_fde_decrypt():
-    key = "B1ygNO/CyRYIUYhTSgoUysX5Y/wWLi4UiWaVeloUWs0="
-    tweak = "6VXORr+YYHrd2nVe0OlA+Q=="
-    input = "lr/ItaYGFXCtHhdPndE65yg7u/GIdM9wscABiiFOUH2Sbyc2UFMlIRSMnZrYCW1a"
-
-    byte_key = B64Block(key).get_block()
-    byte_tweak = B64Block(tweak).get_block()
-    byte_input = B64Block(input).get_block()
-
-    solution = decrypt_fde(byte_key, byte_tweak, byte_input)
-    b64_solution = Block(solution).get_b64_block()
-
-    assert b64_solution == "SGV5IHdpZSBrcmFzcyBkYXMgZnVua3Rpb25pZXJ0IGphIG9mZmVuYmFyIGVjaHQu"
+if __name__ == "__main__":
+    main()
