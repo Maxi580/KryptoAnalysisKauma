@@ -49,6 +49,8 @@ def process_testcases(input_json):
 
 
 def main():
+    print("\n\n kauma gets executed \n\n")
+
     if len(sys.argv) != 2:
         print("Usage: ./kauma <test_file.json>", file=sys.stderr)
         sys.exit(1)
@@ -56,8 +58,7 @@ def main():
     test_file = Path(sys.argv[1])
 
     if not test_file.exists():
-        print(f"Error: File {test_file} does not exist", file=sys.stderr)
-        sys.exit(1)
+        raise f"Error: File {test_file} does not exist"
 
     try:
         with open(test_file) as f:
@@ -67,13 +68,10 @@ def main():
 
         print(json.dumps(results))
 
-    except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in {test_file}", file=sys.stderr)
-        sys.exit(1)
+
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
