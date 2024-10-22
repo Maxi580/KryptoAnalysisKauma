@@ -14,15 +14,9 @@ jobs:
     - name: Build and run tests in Docker
       run: |
         chmod +x kauma
-        chmod +x test_json_outputs.py
+        chmod +x test.py
         
         docker build -t kauma-tests .
         
         docker run --rm kauma-tests
 
-    - name: Upload test artifacts
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: testcases/
