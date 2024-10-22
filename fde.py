@@ -1,5 +1,8 @@
 from sea128 import sea_encrypt, sea_decrypt
 from gfmul import gfmul
+
+from block_poly.b64_block import B64Block
+from block_poly.block import Block
 from block_poly.poly import Poly
 
 
