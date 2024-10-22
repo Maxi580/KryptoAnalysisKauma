@@ -1,10 +1,16 @@
 {
   "testcases": {
     "55f74969-b33c-4356-9973-ca86c5b9861f": {
-      "block": "ARIAAAAAAAAAAAAAAAAAgA=="
+      "action": "poly2block",
+      "arguments": {
+        "coefficients": [12, 127, 9, 0]
+      }
     },
     "77803358-e5c0-43af-9b63-949b07129129": {
-      "coefficients": [0, 9, 12, 3, 127]
+      "action": "block2poly",
+      "arguments": {
+        "block": "ARIAAAAAAAAAAAAAAAAAgA=="
+      }
     }
   }
 }
