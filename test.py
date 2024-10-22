@@ -22,10 +22,12 @@ def run_kauma(input_file: Path) -> dict:
     try:
         print(f"Current working directory: {os.getcwd()}")
         print(f"Input file path: {input_file}")
+        absolute_input_path = os.path.abspath(input_file)
+        print(f"absolute_input_path file path: {input_file}")
         print(f"Directory contents:")
         os.system('ls -la')
 
-        cmd = ['./kauma', str(input_file)]
+        cmd = ['./kauma', str(absolute_input_path)]
         print(f"Running command: {' '.join(cmd)}")
 
         result = subprocess.run(
