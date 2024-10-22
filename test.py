@@ -8,8 +8,7 @@ from datetime import datetime
 import os
 
 
-def load_json(file_path: Path) -> Dict[str, Any]:
-    """Load and parse a JSON file."""
+def load_output_json(file_path: Path) -> Dict[str, Any]:
     try:
         with open(file_path) as f:
             return json.load(f)
@@ -20,14 +19,7 @@ def load_json(file_path: Path) -> Dict[str, Any]:
 
 def run_kauma(input_file: Path) -> dict:
     try:
-        print(f"Current working directory: {os.getcwd()}")
-        print(f"Input file path: {input_file}")
-        print(f"absolute_input_path file path: {input_file}")
-        print(f"Directory contents:")
-        os.system('ls -la')
-
         cmd = ['./kauma', str(input_file)]
-        print(f"Running command: {' '.join(cmd)}")
 
         result = subprocess.run(
             cmd,
@@ -36,28 +28,7 @@ def run_kauma(input_file: Path) -> dict:
             check=False
         )
 
-        print("\nCommand output:")
-        print(f"Return code: {result.returncode}")
-        if result.stdout:
-            print(f"Stdout:\n{result.stdout}")
-        if result.stderr:
-            print(f"Stderr:\n{result.stderr}")
-
-        if result.returncode != 0:
-            print("Command failed with error:")
-            if result.stdout:
-                print(f"Stdout:\n{result.stdout}")
-            if result.stderr:
-                print(f"Stderr:\n{result.stderr}")
-            raise RuntimeError(f"kauma failed: {result.stderr or 'Unknown error'}")
-
-        try:
-            return json.loads(result.stdout)
-        except json.JSONDecodeError as e:
-            print(f"Failed to parse kauma output as JSON:")
-            print(f"Stdout: {result.stdout}")
-            print(f"Stderr: {result.stderr}")
-            raise RuntimeError(f"Invalid JSON output from kauma: {str(e)}")
+        return json.loads(result.stdout)
 
     except Exception as e:
         print(f"Unexpected error:")
@@ -88,7 +59,7 @@ def main():
         print(f"\nTesting {test_name}...")
 
         actual_output = run_kauma(input_file)
-        expected_output = load_json(output_file)
+        expected_output = load_output_json(output_file)
 
         if actual_output == expected_output:
             print(f"✅ {test_name} passed")
