@@ -20,13 +20,21 @@ def load_json(file_path: Path) -> Dict[str, Any]:
 def run_kauma(input_file: Path) -> Dict[str, Any]:
     """Run kauma with input file and return parsed JSON output."""
     try:
+        input_path = str(input_file.absolute())
+        print(f"Trying to run kauma with input file: {input_path}")
+
+        cmd = ['./kauma', input_path]
+        print(f"Executing command: {' '.join(cmd)}")
+
         result = subprocess.run(
-            ['./kauma', str(input_file)],
+            cmd,
             capture_output=True,
             text=True,
             check=True
         )
+
         return json.loads(result.stdout)
+
     except subprocess.CalledProcessError as e:
         print(f"Error running kauma on {input_file}: {e.stderr}")
         sys.exit(1)
