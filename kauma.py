@@ -65,6 +65,9 @@ def main():
             input_data = json.load(f)
 
         print("Results get calculated")
+
+        print(f"Input: {input_data}")
+
         results = process_testcases(input_data)
         print(f"results: {results}")
 
