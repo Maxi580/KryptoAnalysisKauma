@@ -51,6 +51,12 @@ def run_kauma(input_file: Path) -> dict:
             print(f"Stderr: {result.stderr}")
             raise RuntimeError(f"Invalid JSON output from kauma: {str(e)}")
 
+    except Exception as e:
+        print(f"Unexpected error:")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error: {str(e)}")
+        raise
+
 
 def main():
     test_dir = Path("testcases")
