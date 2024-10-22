@@ -33,8 +33,16 @@ def run_kauma(input_file: Path) -> dict:
             cmd,
             capture_output=True,
             text=True,
-            check=True
+            check=False
         )
+
+        print("\nCommand output:")
+        print(f"Return code: {result.returncode}")
+        if result.stdout:
+            print(f"Stdout:\n{result.stdout}")
+        if result.stderr:
+            print(f"Stderr:\n{result.stderr}")
+
         if result.returncode != 0:
             print("Command failed with error:")
             if result.stdout:
